@@ -1,25 +1,51 @@
+import { extend } from '../shared'
+
 class ReactiveEffect {
   private _fn: any;
+  deps = [];
+  active = true;
+  onStop?: () => void
 
   constructor(fn, public scheduler?) {
     this._fn = fn;
   }
 
-  run () {
+  run() {
     activeEffect = this
     return this._fn()
   }
+
+  stop() {
+    // 避免多次调用stop执行多次
+    if (this.active) {
+      this.onStop && this.onStop()
+      cleanupEffect(this)
+      this.active = false
+    }
+  }
+}
+
+const cleanupEffect = (effect) => {
+  effect.deps.forEach((dep: any) => {
+    dep.delete(effect)
+  })
 }
 
 let activeEffect
 export const effect = (fn, options: any = {}) => {
-  const scheduler = options.scheduler
-  const _effect = new ReactiveEffect(fn, scheduler)
+
+  const _effect = new ReactiveEffect(fn, options.scheduler)
+
+  extend(_effect, options)
+  // _effect.onStop = options.onStop
 
   // 立即执行一次
   _effect.run()
 
-  return _effect.run.bind(_effect)
+  const runner: any = _effect.run.bind(_effect)
+  runner.effect = _effect
+
+  return runner
 }
 
 // 依赖收集
@@ -39,6 +65,9 @@ export const track = (target, key) => {
   }
 
   dep.add(activeEffect)
+
+  if (!activeEffect) return
+  activeEffect.deps.push(dep);
 }
 
 export const trigger = (target, key, value) => {
@@ -52,4 +81,8 @@ export const trigger = (target, key, value) => {
       effect.run()
     }
   }
+}
+
+export const stop = (runner) => {
+  runner.effect.stop()
 }

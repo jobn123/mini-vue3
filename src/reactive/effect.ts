@@ -1,5 +1,8 @@
 import { extend } from '../shared'
 
+let activeEffect
+let shouldTrack
+
 class ReactiveEffect {
   private _fn: any;
   deps = [];
@@ -11,8 +14,18 @@ class ReactiveEffect {
   }
 
   run() {
+    if (!this.active) {
+      return this._fn()
+    }
+
+    shouldTrack = true
     activeEffect = this
-    return this._fn()
+
+    const result = this._fn()
+    // reset
+    shouldTrack = false;
+
+    return result
   }
 
   stop() {
@@ -29,9 +42,10 @@ const cleanupEffect = (effect) => {
   effect.deps.forEach((dep: any) => {
     dep.delete(effect)
   })
+  effect.deps.length = 0
 }
 
-let activeEffect
+
 export const effect = (fn, options: any = {}) => {
 
   const _effect = new ReactiveEffect(fn, options.scheduler)
@@ -51,6 +65,8 @@ export const effect = (fn, options: any = {}) => {
 // 依赖收集
 const targetMap = new Map();
 export const track = (target, key) => {
+  if (!isTracking()) return
+
   // target -> key -> dep
   let depsMap = targetMap.get(target)
   if (!depsMap) {
@@ -64,9 +80,12 @@ export const track = (target, key) => {
     depsMap.set(key, dep)
   }
 
+  // 已经在dep中跳过,避免重复收集
+  // 不跳过也没关系用的Set😹
+  if (dep.has(activeEffect)) return
+
   dep.add(activeEffect)
 
-  if (!activeEffect) return
   activeEffect.deps.push(dep);
 }
 
@@ -85,4 +104,8 @@ export const trigger = (target, key, value) => {
 
 export const stop = (runner) => {
   runner.effect.stop()
+}
+
+function isTracking() {
+  return shouldTrack && activeEffect !== undefined;
 }

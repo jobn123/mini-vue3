@@ -1,4 +1,5 @@
 import { track, trigger } from "./effect";
+import { ReactiveFlags } from './reactive'
 
 const createGetter = (isReadonly = false) => {
   return function get(target, key) {
@@ -6,6 +7,15 @@ const createGetter = (isReadonly = false) => {
     // 依赖收集
     if (!isReadonly) {
       track(target, key)
+    }
+
+    // 不是只读 就是一个响应式对象
+    if (key === ReactiveFlags.IS_REACTIVE) {
+      return !isReadonly
+    }
+
+    if (key === ReactiveFlags.IS_READONLY) {
+      return isReadonly
     }
 
     return res

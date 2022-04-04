@@ -30,3 +30,7 @@ export const isReactive = (raw) => {
 export const isReadonly = (raw) => {
   return !!raw[ReactiveFlags.IS_READONLY]
 }
+
+export const isProxy = (raw) => {
+  return isReactive(raw) || isReadonly(raw)
+}

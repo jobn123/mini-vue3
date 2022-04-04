@@ -11,6 +11,9 @@ describe("readonly", () => {
     expect(isReadonly(wrapper)).toBe(true)
     expect(isReadonly(original)).toBe(false)
 
+    // nested readonly
+    expect(isReadonly(wrapper.bar)).toBe(true)
+
     expect(wrapper.foo).toBe(1)
   })
 

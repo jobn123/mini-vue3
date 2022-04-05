@@ -55,3 +55,21 @@ export const isRef = (ref) => {
 export const unRef = (ref) => {
   return isRef(ref) ? ref.value : ref
 }
+
+export const proxyRefs = (target) => {
+  return new Proxy(target, {
+    get(target, key) {
+      // 如果key是ref返回unref否则返回原值
+      return unRef(Reflect.get(target, key))
+    },
+    set(target, key, value) {
+      // target[key]是ref 并且 设置的值非ref 修改target[key].value
+      // 否则直接替换
+      if (isRef(target[key]) && !isRef(value)) {
+        return target[key].value = value;
+      } else {
+        return Reflect.set(target, key, value);
+      }
+    }
+  })
+}

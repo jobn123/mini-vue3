@@ -3,7 +3,7 @@ import { extend } from '../shared'
 let activeEffect
 let shouldTrack
 
-class ReactiveEffect {
+export class ReactiveEffect {
   private _fn: any;
   deps = [];
   active = true;
@@ -13,7 +13,7 @@ class ReactiveEffect {
     this._fn = fn;
   }
 
-  run () {
+  run() {
     if (!this.active) {
       return this._fn()
     }
@@ -28,7 +28,7 @@ class ReactiveEffect {
     return result
   }
 
-  stop () {
+  stop() {
     // 避免多次调用stop执行多次
     if (this.active) {
       this.onStop && this.onStop()
@@ -114,6 +114,6 @@ export const stop = (runner) => {
   runner.effect.stop()
 }
 
-export function isTracking () {
+export function isTracking() {
   return shouldTrack && activeEffect !== undefined;
 }

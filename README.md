@@ -8,6 +8,7 @@ learn vue3 source
  - [x]  effect
  - [x]  readonly
  - [x]  ref
+ - [x]  computed
 
 # test
 

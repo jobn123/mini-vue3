@@ -13,7 +13,7 @@ class ReactiveEffect {
     this._fn = fn;
   }
 
-  run() {
+  run () {
     if (!this.active) {
       return this._fn()
     }
@@ -28,7 +28,7 @@ class ReactiveEffect {
     return result
   }
 
-  stop() {
+  stop () {
     // 避免多次调用stop执行多次
     if (this.active) {
       this.onStop && this.onStop()
@@ -80,6 +80,10 @@ export const track = (target, key) => {
     depsMap.set(key, dep)
   }
 
+  trackEffect(dep)
+}
+
+export const trackEffect = (dep) => {
   // 已经在dep中跳过,避免重复收集
   // 不跳过也没关系用的Set😹
   if (dep.has(activeEffect)) return
@@ -91,9 +95,13 @@ export const track = (target, key) => {
 
 export const trigger = (target, key, value) => {
   const depsMap = targetMap.get(target)
-  const deps = depsMap.get(key)
+  const dep = depsMap.get(key)
 
-  for (const effect of deps) {
+  triggerEffect(dep)
+}
+
+export const triggerEffect = (dep) => {
+  for (const effect of dep) {
     if (effect.scheduler) {
       effect.scheduler()
     } else {
@@ -106,6 +114,6 @@ export const stop = (runner) => {
   runner.effect.stop()
 }
 
-function isTracking() {
+export function isTracking () {
   return shouldTrack && activeEffect !== undefined;
 }

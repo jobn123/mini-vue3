@@ -6,6 +6,7 @@ class RefImpl {
   private _value: any;
   private _rawValue: any;
   public dep: Set<unknown>;
+  __v_isRef = true;
 
   constructor(val) {
     // val如果是对象用reactive包裹起来
@@ -14,13 +15,13 @@ class RefImpl {
     this.dep = new Set()
   }
 
-  get value () {
+  get value() {
     // 依赖收集
     trackRefValue(this.dep)
     return this._value;
   }
 
-  set value (newVal) {
+  set value(newVal) {
     // Object.is
     // MDN https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/is
 
@@ -33,11 +34,11 @@ class RefImpl {
   }
 }
 
-function convert (value) {
+function convert(value) {
   return isObject(value) ? reactive(value) : value;
 }
 
-function trackRefValue (dep) {
+function trackRefValue(dep) {
   if (isTracking()) {
     trackEffect(dep)
   }
@@ -47,3 +48,10 @@ export const ref = (value) => {
   return new RefImpl(value);
 }
 
+export const isRef = (ref) => {
+  return !!ref.__v_isRef
+}
+
+export const unRef = (ref) => {
+  return isRef(ref) ? ref.value : ref
+}

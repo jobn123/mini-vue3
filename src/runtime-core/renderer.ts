@@ -6,7 +6,9 @@ export function render(vnode, container) {
 }
 
 function patch(vnode, container) {
-
+  // TODO 判断vnode是否为element类型
+  // 是element处理element 否则视为组件
+  // processElement(vnode, container)
   // 处理组件
   processComponent(vnode, container)
 }

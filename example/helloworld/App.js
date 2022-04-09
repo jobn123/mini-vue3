@@ -1,4 +1,5 @@
 import { h } from '../../lib/min-vue3.esm.js'
+import { Foo } from './Foo.js'
 
 window.self = null
 export const App = {
@@ -15,7 +16,8 @@ export const App = {
           console.log('mousedown')
         }
       },
-      "hello " + this.msg
+      [h("div", {}, "hello" + this.msg), h(Foo, { count: 1 })]
+      // "hello " + this.msg
       // [h("p", { class: "red" }, "hello"), h("p", { class: "blue" }, "world")]
     )
   },

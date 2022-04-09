@@ -8,6 +8,12 @@ export const App = {
       {
         id: "root",
         class: ["red", "blue"],
+        onClick() {
+          console.log('clicked')
+        },
+        onMousedown() {
+          console.log('mousedown')
+        }
       },
       "hello " + this.msg
       // [h("p", { class: "red" }, "hello"), h("p", { class: "blue" }, "world")]

@@ -1,4 +1,4 @@
-import { h } from '../../lib/min-vue3.esm.js'
+import { h, createTextVNode } from '../../lib/min-vue3.esm.js'
 import { Foo } from './Foo.js'
 
 export const App = {
@@ -6,7 +6,7 @@ export const App = {
   render() {
     const app = h("div", {}, "App")
     const foo = h(Foo, {}, {
-      header: ({ age }) => h("p", {}, "header" + age),
+      header: ({ age }) => [h("p", {}, "header" + age), createTextVNode("Hello World")],
       footer: () => h("p", {}, "footer")
     })
     return h("div", {}, [app, foo])

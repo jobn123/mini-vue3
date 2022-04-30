@@ -48,7 +48,7 @@ export function createRenderer(options) {
     mountComponent(n2, container, parentComponent)
   }
 
-  function patchElement(n1, n2, container) {
+  function patchElement(n1, n2, container, parentComponent) {
     console.log("patchElement")
     console.log("n1", n1)
     console.log("n2", n2)
@@ -58,11 +58,11 @@ export function createRenderer(options) {
 
     const el = (n2.el = n1.el)
 
-    patchChildren(n1, n2, el);
+    patchChildren(n1, n2, el, parentComponent);
     patchProps(el, oldProps, newProps);
   }
 
-  function patchChildren(n1, n2, container) {
+  function patchChildren(n1, n2, container, parentComponent) {
     const preShapeFlag = n1.shapeFlag
     const { shapeFlag } = n2
 
@@ -75,6 +75,11 @@ export function createRenderer(options) {
       }
       if (n1.children !== n2.children) {
         hostSetElementText(container, n2.children)
+      }
+    } else {
+      if (preShapeFlag & ShapeFlags.TEXT_CHILDREN) {
+        hostSetElementText(container, "")
+        mountChildren(n2, container, parentComponent)
       }
     }
   }
@@ -115,7 +120,7 @@ export function createRenderer(options) {
     if (!n1) {
       mountElement(n2, container, parentComponent)
     } else {
-      patchElement(n1, n2, container)
+      patchElement(n1, n2, container, parentComponent)
     }
   }
 

@@ -72,6 +72,8 @@ export function createRenderer(options) {
         // 清空老的children
         unmountChildren(n1.children);
         // 设置text
+      }
+      if (n1.children !== n2.children) {
         hostSetElementText(container, n2.children)
       }
     }

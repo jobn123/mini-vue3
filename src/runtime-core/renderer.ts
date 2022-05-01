@@ -140,6 +140,56 @@ export function createRenderer(options) {
         hostRemove(c1[i].el)
         i++
       }
+    } else {
+      // 中间对比
+      let s1 = i;
+      let s2 = i;
+
+      // 需要对比的节点数量
+      const toBePatched = e2 - s2
+      // 已经对比的节点数量
+      let patched = 0
+      // 先建立新节点的key映射表
+      const keyToNewIndexMap = new Map();
+
+      for (let i = s2; i <= e2; i++) {
+        const nextChild = c2[i]
+        keyToNewIndexMap.set(nextChild.key, i)
+      }
+
+      for (let i = s1; i <= e1; i++) {
+        const prevChild = c1[i]
+
+        // 如果新节点全部检测完毕还有旧节点，无需对比直接删除
+        if (patched >= toBePatched) {
+          hostRemove(prevChild.el)
+          continue
+        }
+
+        let newIndex
+        // 用户传了key取Map中查找
+        if (prevChild.key !== null) {
+          newIndex = keyToNewIndexMap.get(prevChild.key)
+        } else {
+          // 用户可能没有传key遍历
+          for (let j = s2; j < e2; j++) {
+            // 在新节点中找到了 跳出循环
+            if (isSomeVNodeType(prevChild, c2[j])) {
+              newIndex = j;
+              break
+            }
+          }
+        }
+
+        // 新节点中不存在删除旧节点
+        if (newIndex === undefined) {
+          hostRemove(prevChild.el)
+        } else {
+          // 存在 继续对比
+          patch(prevChild, c2[newIndex], container, parentComponent, null)
+          patched++
+        }
+      }
     }
 
   }

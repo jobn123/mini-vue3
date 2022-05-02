@@ -2,6 +2,7 @@
 import { effect } from '../reactive/effect';
 import { ShapeFlags } from '../shared/ShapeFlags'
 import { createComponentInstance, setupComponent } from './component'
+import { shouldUpdateComponent } from './componentUpdateUtils';
 import { createAppAPI } from './createApp';
 import { Fragment, Text } from './vnode'
 
@@ -45,7 +46,26 @@ export function createRenderer(options) {
   }
 
   function processComponent(n1, n2, container, parentComponent, anchor) {
-    mountComponent(n2, container, parentComponent, anchor)
+
+    if (!n1) {
+      // 创建组件
+      mountComponent(n2, container, parentComponent, anchor)
+    } else {
+      // 更新组件
+      updateComponent(n1, n2)
+    }
+
+  }
+
+  function updateComponent(n1, n2) {
+    const instance = (n2.component = n1.component)
+    // 判断props是否改变如果没改变无需调用update
+    if (shouldUpdateComponent(n1, n2)) {
+      instance.next = n2
+      instance.update()
+    } else {
+      n2.el = n1.el
+    }
   }
 
   function patchElement(n1, n2, container, parentComponent, anchor) {
@@ -274,11 +294,11 @@ export function createRenderer(options) {
     }
   }
 
-  function mountComponent(n2, container, parentComponent, anchor) {
-    const instance = createComponentInstance(n2, parentComponent)
+  function mountComponent(initialVnode, container, parentComponent, anchor) {
+    const instance = (initialVnode.component = createComponentInstance(initialVnode, parentComponent))
 
     setupComponent(instance)
-    setupRenderEffect(instance, n2, container, anchor)
+    setupRenderEffect(instance, initialVnode, container, anchor)
   }
 
   function mountElement(vnode, container, parentComponent, anchor) {
@@ -311,7 +331,7 @@ export function createRenderer(options) {
   }
 
   function setupRenderEffect(instance, initialVnode, container, anchor) {
-    effect(() => {
+    instance.update = effect(() => {
       if (!instance.isMounted) {
         console.log("init")
         const { proxy } = instance
@@ -326,6 +346,12 @@ export function createRenderer(options) {
         instance.isMounted = true
       } else {
         console.log("update")
+
+        const { next, vnode } = instance
+        if (next) {
+          next.el = vnode.el
+          updateComponentRender(instance, next)
+        }
         const { proxy } = instance
         const subTree = instance.render.call(proxy)
         const preSubTree = instance.subTree
@@ -353,6 +379,14 @@ export function createRenderer(options) {
   }
 }
 
+function updateComponentRender(instance, nextVNode) {
+  instance.vnode = nextVNode
+  instance.next = null
+
+  instance.props = nextVNode.props
+}
+
+// 获取最长递增子序列
 function getSequence(arr: number[]): number[] {
   const p = arr.slice();
   const result = [0];

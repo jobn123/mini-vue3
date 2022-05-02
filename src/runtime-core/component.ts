@@ -8,6 +8,8 @@ import { PublicInstanceProxyHandlers } from './componnetPublicInstance'
 export function createComponentInstance(vnode, parent) {
   const component = {
     vnode,
+    // 下次要更新的虚拟节点
+    next: null,
     type: vnode.type,
     setupState: {},
     props: {},

@@ -1,18 +1,18 @@
 import { NodeTypes } from "./ast"
 
-export function baseParse(content: string) {
+export function baseParse (content: string) {
   const context = createParserContext(content)
 
   return createRoot(parseChildren(context))
 }
 
-function parseChildren(context) {
+function parseChildren (context) {
 
   const nodes: any = []
 
   let node;
 
-  if (context.source.starsWith("{{")) {
+  if (context.source.startsWith("{{")) {
     node = parseInterpolation(context)
   }
 
@@ -21,7 +21,7 @@ function parseChildren(context) {
   return nodes
 }
 
-function parseInterpolation(context) {
+function parseInterpolation (context) {
   const openDelimiter = "{{"
   const closeDelimiter = "}}"
 
@@ -45,17 +45,17 @@ function parseInterpolation(context) {
   }
 }
 
-function advanceBy(context: any, length: number) {
+function advanceBy (context: any, length: number) {
   context.source = context.source.slice(length)
 }
 
-function createRoot(children) {
+function createRoot (children) {
   return {
     children
   }
 }
 
-function createParserContext(content: string): any {
+function createParserContext (content: string): any {
   return {
     source: content
   }

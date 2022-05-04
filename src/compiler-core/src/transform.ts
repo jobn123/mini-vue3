@@ -1,6 +1,11 @@
-export function transfrom (root, options) {
+export function transfrom (root, options = {}) {
   const context = createTrasnformContext(root, options)
   traverseNode(root, context)
+  createCodegen(root)
+}
+
+function createCodegen (root) {
+  root.codegenNode = root.children[0]
 }
 
 function createTrasnformContext (root, options) {
@@ -16,15 +21,12 @@ function traverseNode (node: any, context) {
   console.log(node)
   const { nodeTransforms } = context.options
 
+  if (!nodeTransforms) return
   for (let i = 0; i < nodeTransforms.length; i++) {
     const transform = nodeTransforms[i];
     transform(node)
   }
   const children = node.children
-
-  // if (node.type === NodeTypes.TEXT) {
-  //   node.content = node.content + " mini-vue"
-  // }
 
   if (children) {
     for (let i = 0; i < children.length; i++) {

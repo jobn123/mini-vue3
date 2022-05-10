@@ -16,3 +16,5 @@ export const camelize = (str) => {
 const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1)
 
 export const toHandlerKey = (str) => str ? `on${capitalize(str)}` : ""
+
+export const isString = (str) => typeof str === "string"

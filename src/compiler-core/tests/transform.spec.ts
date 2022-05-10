@@ -1,6 +1,6 @@
 import { NodeTypes } from '../src/ast'
 import { baseParse } from '../src/parse'
-import { transfrom } from '../src/transform'
+import { transform } from '../src/transform'
 
 describe('transfrom', () => {
   it("happy path", () => {
@@ -12,7 +12,7 @@ describe('transfrom', () => {
       }
     }
 
-    transfrom(ast, {
+    transform(ast, {
       nodeTransforms: [plugin]
     })
 

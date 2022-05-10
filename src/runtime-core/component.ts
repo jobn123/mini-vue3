@@ -5,7 +5,7 @@ import { initProps } from './componentProps'
 import { initSlots } from './componentSlots'
 import { PublicInstanceProxyHandlers } from './componnetPublicInstance'
 
-export function createComponentInstance(vnode, parent) {
+export function createComponentInstance (vnode, parent) {
   const component = {
     vnode,
     // 下次要更新的虚拟节点
@@ -24,7 +24,7 @@ export function createComponentInstance(vnode, parent) {
   return component
 }
 
-export function setupComponent(instance) {
+export function setupComponent (instance) {
   // initProps
   initProps(instance, instance.vnode.props)
   // initSlots
@@ -32,7 +32,7 @@ export function setupComponent(instance) {
   setupStatefulComponent(instance)
 }
 
-function setupStatefulComponent(instance) {
+function setupStatefulComponent (instance) {
   const Component = instance.type
 
   instance.proxy = new Proxy({ _: instance }, PublicInstanceProxyHandlers)
@@ -48,7 +48,7 @@ function setupStatefulComponent(instance) {
 
 }
 
-function handleSetupResult(instance, setupResult) {
+function handleSetupResult (instance, setupResult) {
   // function object
   if (typeof setupResult === "object") {
     instance.setupState = proxyRefs(setupResult)
@@ -57,18 +57,27 @@ function handleSetupResult(instance, setupResult) {
   finishComponentSetup(instance)
 }
 
-function finishComponentSetup(instance) {
+function finishComponentSetup (instance) {
   const Component = instance.type
-  if (Component.render) {
-    instance.render = Component.render
+
+  if (compiler && !Component.render) {
+    if (Component.template) {
+      Component.render = compiler(Component.template)
+    }
   }
+  instance.render = Component.render
 }
 
 let currentInstance = null
-export function getCurrentInstance() {
+export function getCurrentInstance () {
   return currentInstance;
 }
 
-function setCurrentInstance(instance) {
+function setCurrentInstance (instance) {
   currentInstance = instance
+}
+
+let compiler
+export function registerRuntimeCompiler (_compiler) {
+  compiler = _compiler
 }

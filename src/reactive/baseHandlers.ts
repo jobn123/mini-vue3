@@ -1,10 +1,9 @@
-import { extend } from '../shared/index.js'
-import { isObject } from '../shared/index.js'
+import { extend, isObject } from '../shared/index'
 import { track, trigger } from "./effect"
 import { reactive, ReactiveFlags, readonly } from './reactive'
 
 const createGetter = (isReadonly = false, isShallow = false) => {
-  return function get(target, key) {
+  return function get (target, key) {
 
     // 不是只读 就是一个响应式对象
     if (key === ReactiveFlags.IS_REACTIVE) {
@@ -36,7 +35,7 @@ const createGetter = (isReadonly = false, isShallow = false) => {
 }
 
 const createSetter = () => {
-  return function set(target, key, value) {
+  return function set (target, key, value) {
     const res = Reflect.set(target, key, value);
     // 触发依赖 
     trigger(target, key, value);
@@ -57,7 +56,7 @@ export const mutableHandlers = {
 
 export const readonlyHandlers = {
   get: readonlyGet,
-  set(target, key, value) {
+  set (target, key, value) {
     console.warn(`warn: readonly ${target} can not be set `)
     return true
   }

@@ -7,7 +7,7 @@ import { createAppAPI } from './createApp';
 import { queueJobs } from './scheduler';
 import { Fragment, Text } from './vnode'
 
-export function createRenderer(options) {
+export function createRenderer (options) {
   const {
     createElement: hostCreateElement,
     patchProp: hostPatchProp,
@@ -16,13 +16,13 @@ export function createRenderer(options) {
     setElementText: hostSetElementText
   } = options;
 
-  function render(vnode, container) {
+  function render (vnode, container) {
     patch(null, vnode, container, null, null)
   }
 
   // n1 -> 旧的虚拟节点
   // n2 -> 新的虚拟节点
-  function patch(n1, n2, container, parentComponent, anchor) {
+  function patch (n1, n2, container, parentComponent, anchor) {
     // 是element处理element 否则视为组件
     const { shapeFlag, type } = n2
 
@@ -46,7 +46,7 @@ export function createRenderer(options) {
 
   }
 
-  function processComponent(n1, n2, container, parentComponent, anchor) {
+  function processComponent (n1, n2, container, parentComponent, anchor) {
 
     if (!n1) {
       // 创建组件
@@ -58,7 +58,7 @@ export function createRenderer(options) {
 
   }
 
-  function updateComponent(n1, n2) {
+  function updateComponent (n1, n2) {
     const instance = (n2.component = n1.component)
     // 判断props是否改变如果没改变无需调用update
     if (shouldUpdateComponent(n1, n2)) {
@@ -69,7 +69,7 @@ export function createRenderer(options) {
     }
   }
 
-  function patchElement(n1, n2, container, parentComponent, anchor) {
+  function patchElement (n1, n2, container, parentComponent, anchor) {
     console.log("patchElement")
     console.log("n1", n1)
     console.log("n2", n2)
@@ -83,7 +83,7 @@ export function createRenderer(options) {
     patchProps(el, oldProps, newProps);
   }
 
-  function patchChildren(n1, n2, container, parentComponent, anchor) {
+  function patchChildren (n1, n2, container, parentComponent, anchor) {
     const preShapeFlag = n1.shapeFlag
     const { shapeFlag } = n2
 
@@ -108,12 +108,12 @@ export function createRenderer(options) {
     }
   }
 
-  function patchKeyedChildren(c1, c2, container, parentComponent, parentAnchor) {
+  function patchKeyedChildren (c1, c2, container, parentComponent, parentAnchor) {
     let i = 0;
     let e1 = c1.length - 1
     let e2 = c2.length - 1
 
-    function isSomeVNodeType(n1, n2) {
+    function isSomeVNodeType (n1, n2) {
       // 判断类型是否一致
       // 判断key是否一致
       return n1.type === n2.type && n1.key === n2.key
@@ -255,7 +255,7 @@ export function createRenderer(options) {
 
   }
 
-  function unmountChildren(children) {
+  function unmountChildren (children) {
     for (let i = 0; i < children.length; i++) {
       const el = children[i].el
 
@@ -265,7 +265,7 @@ export function createRenderer(options) {
 
   const EMPTY_OBJ = {}
 
-  function patchProps(el, oldProps, newProps) {
+  function patchProps (el, oldProps, newProps) {
 
     if (oldProps === newProps) return
 
@@ -287,7 +287,7 @@ export function createRenderer(options) {
     }
   }
 
-  function processElement(n1, n2, container, parentComponent, anchor) {
+  function processElement (n1, n2, container, parentComponent, anchor) {
     if (!n1) {
       mountElement(n2, container, parentComponent, anchor)
     } else {
@@ -295,14 +295,14 @@ export function createRenderer(options) {
     }
   }
 
-  function mountComponent(initialVnode, container, parentComponent, anchor) {
+  function mountComponent (initialVnode, container, parentComponent, anchor) {
     const instance = (initialVnode.component = createComponentInstance(initialVnode, parentComponent))
 
     setupComponent(instance)
     setupRenderEffect(instance, initialVnode, container, anchor)
   }
 
-  function mountElement(vnode, container, parentComponent, anchor) {
+  function mountElement (vnode, container, parentComponent, anchor) {
     const el = (vnode.el = hostCreateElement(vnode.type));
 
     const { children, shapeFlag } = vnode
@@ -325,18 +325,18 @@ export function createRenderer(options) {
     hostInsert(el, container, anchor)
   }
 
-  function mountChildren(n2, container, parentComponent, anchor) {
+  function mountChildren (n2, container, parentComponent, anchor) {
     n2.children.forEach((v) => {
       patch(null, v, container, parentComponent, anchor)
     })
   }
 
-  function setupRenderEffect(instance, initialVnode, container, anchor) {
+  function setupRenderEffect (instance, initialVnode, container, anchor) {
     instance.update = effect(() => {
       if (!instance.isMounted) {
         console.log("init")
         const { proxy } = instance
-        const subTree = (instance.subTree = instance.render.call(proxy))
+        const subTree = (instance.subTree = instance.render.call(proxy, proxy))
 
         console.log(subTree)
 
@@ -354,25 +354,25 @@ export function createRenderer(options) {
           updateComponentRender(instance, next)
         }
         const { proxy } = instance
-        const subTree = instance.render.call(proxy)
+        const subTree = instance.render.call(proxy, proxy)
         const preSubTree = instance.subTree
         instance.subTree = subTree
 
         patch(preSubTree, subTree, container, instance, anchor)
       }
     }, {
-      scheduler() {
+      scheduler () {
         console.log('update - scheduler')
         queueJobs(instance.update)
       }
     })
   }
 
-  function processFragment(n1, n2: any, container: any, parentComponent, anchor) {
+  function processFragment (n1, n2: any, container: any, parentComponent, anchor) {
     mountChildren(n2.children, container, parentComponent, anchor)
   }
 
-  function processText(n1, n2: any, container: any) {
+  function processText (n1, n2: any, container: any) {
     const { children } = n2
     const textNode = (n2.el = document.createTextNode(children))
     container.append(textNode)
@@ -384,7 +384,7 @@ export function createRenderer(options) {
   }
 }
 
-function updateComponentRender(instance, nextVNode) {
+function updateComponentRender (instance, nextVNode) {
   instance.vnode = nextVNode
   instance.next = null
 
@@ -392,7 +392,7 @@ function updateComponentRender(instance, nextVNode) {
 }
 
 // 获取最长递增子序列
-function getSequence(arr: number[]): number[] {
+function getSequence (arr: number[]): number[] {
   const p = arr.slice();
   const result = [0];
   let i, j, u, v, c;
